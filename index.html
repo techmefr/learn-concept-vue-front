@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide Architecture Vue.js</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1e293b;
+            padding: 20px;
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 30px 90px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.08)"/></svg>');
+            opacity: 0.6;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.3em;
+            opacity: 0.98;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 1px 5px rgba(0,0,0,0.15);
+        }
+
+        .warning-banner {
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+            color: white;
+            padding: 30px 40px;
+            margin: 0;
+            border-bottom: 4px solid #dc2626;
+        }
+
+        .warning-banner h2 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 800;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .warning-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .anti-pattern-box {
+            background: rgba(0, 0, 0, 0.25);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid #fff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .anti-pattern-box h3 {
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            font-weight: 800;
+        }
+
+        .anti-pattern-box p {
+            line-height: 1.8;
+            font-weight: 500;
+        }
+
+        .anti-pattern-box code {
+            background: rgba(0, 0, 0, 0.4);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            font-weight: 700;
+        }
+
+        .principles-banner {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 40px;
+            margin: 0;
+        }
+        
+        .principles-banner h2 {
+            color: #1e293b;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 2em;
+            font-weight: 800;
+        }
+
+        .principles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .principle-badge {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            text-align: center;
+            border: 3px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .principle-badge:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.35);
+            border-color: #667eea;
+        }
+
+        .principle-badge h3 {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 12px;
+            font-weight: 800;
+        }
+
+        .principle-badge p {
+            font-size: 1em;
+            color: #475569;
+            font-weight: 600;
+            line-height: 1.6;
+        }
+
+        .principle-badge p:last-child {
+            color: #64748b;
+            margin-top: 12px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f1f5f9;
+            padding: 0 40px;
+            border-bottom: 3px solid #cbd5e1;
+            overflow-x: auto;
+            gap: 5px;
+        }
+
+        .tab {
+            padding: 20px 32px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1.05em;
+            font-weight: 700;
+            color: #64748b;
+            transition: all 0.3s;
+            position: relative;
+            white-space: nowrap;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .tab:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.08);
+        }
+
+        .tab.active {
+            color: #667eea;
+            background: white;
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .content {
+            padding: 50px;
+            background: white;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .flowchart {
+            background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+            padding: 40px;
+            border-radius: 16px;
+            margin: 35px 0;
+        }
+
+        .flow-step {
+            background: white;
+            border: 4px solid #667eea;
+            border-radius: 16px;
+            padding: 28px;
+            margin: 25px auto;
+            max-width: 750px;
+            position: relative;
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
+            transition: transform 0.3s;
+        }
+
+        .flow-step:hover {
+            transform: translateX(8px);
+        }
+
+        .flow-step.decision {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, #fff 0%, #fef3c7 100%);
+            box-shadow: 0 8px 30px rgba(245, 158, 11, 0.2);
+        }
+
+        .flow-step.result {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #fff 0%, #d1fae5 100%);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.2);
+        }
+
+        .flow-step h3 {
+            color: #667eea;
+            margin-bottom: 18px;
+            font-size: 1.5em;
+            font-weight: 800;
+        }
+
+        .flow-step.decision h3 {
+            color: #f59e0b;
+        }
+
+        .flow-step.result h3 {
+            color: #10b981;
+        }
+
+        .flow-step p {
+            color: #1e293b;
+            font-weight: 500;
+            line-height: 1.8;
+        }
+
+        .flow-arrow {
+            text-align: center;
+            font-size: 2.5em;
+            color: #667eea;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .example {
+            background: #1e293b;
+            color: #f1f5f9;
+            padding: 30px;
+            border-radius: 16px;
+            margin: 30px 0;
+            overflow-x: auto;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            border: 2px solid #334155;
+        }
+
+        .example::before {
+            content: attr(data-label);
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 0.85em;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5);
+        }
+
+        .example pre {
+            margin: 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.7;
+            color: #f1f5f9;
+        }
+
+        .scenario {
+            background: white;
+            border: 4px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 40px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+        }
+
+        .scenario h3 {
+            color: #667eea;
+            margin-bottom: 25px;
+            font-size: 1.9em;
+            font-weight: 800;
+        }
+
+        .scenario h4 {
+            color: #1e293b;
+            font-weight: 700;
+        }
+
+        .file-structure {
+            background: #1e293b;
+            color: #f1f5f9;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            border-left: 6px solid #667eea;
+            font-size: 0.95em;
+            line-height: 1.8;
+            border: 2px solid #334155;
+        }
+
+        .file-structure .folder {
+            color: #fbbf24;
+            font-weight: bold;
+            margin-top: 12px;
+        }
+
+        .file-structure .file {
+            color: #34d399;
+            margin-left: 20px;
+        }
+
+        .file-structure .comment {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #fde68a, #fcd34d);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-weight: 800;
+            color: #78350f;
+        }
+
+        code {
+            background: #ede9fe;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            color: #6b21a8;
+            font-weight: 700;
+            font-size: 0.9em;
+            border: 1px solid #ddd6fe;
+        }
+
+        .best-practices {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border-left: 8px solid #10b981;
+            padding: 30px;
+            margin: 30px 0;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .best-practices h3, .best-practices h4 {
+            color: #065f46;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+
+        .best-practices p, .best-practices li {
+            color: #065f46;
+            font-weight: 600;
+        }
+
+        .anti-patterns {
+            background: linear-gradient(135deg, #fecaca, #fbbebe);
+            border-left: 8px solid #f87171;
+            padding: 30px;
+            margin: 30px 0;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(248, 113, 113, 0.3);
+        }
+
+        .anti-patterns h3, .anti-patterns h4 {
+            color: #b91c1c;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+
+        .anti-patterns p, .anti-patterns li {
+            color: #b91c1c;
+            font-weight: 600;
+        }
+
+        .principle-box {
+            background: white;
+            border: 4px solid #667eea;
+            border-radius: 20px;
+            padding: 35px;
+            margin: 35px 0;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.15);
+        }
+
+        .principle-box h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.7em;
+            font-weight: 800;
+        }
+
+        .principle-box p {
+            color: #1e293b;
+            font-weight: 500;
+            line-height: 1.8;
+        }
+
+        ul {
+            margin-left: 25px;
+        }
+
+        ul li {
+            margin: 12px 0;
+            line-height: 1.8;
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        ul li strong {
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        .atomic-layer {
+            background: white;
+            border: 3px solid #cbd5e1;
+            border-radius: 16px;
+            padding: 30px;
+            margin: 25px 0;
+            transition: all 0.3s;
+        }
+
+        .atomic-layer:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .atomic-layer h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            font-weight: 800;
+        }
+
+        .atomic-layer p {
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        .ddd-domain {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border-left: 6px solid #10b981;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 12px;
+        }
+
+        .ddd-domain h4 {
+            color: #065f46;
+            margin-bottom: 12px;
+            font-weight: 800;
+        }
+
+        .ddd-domain ul li {
+            color: #065f46;
+            font-weight: 600;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .comparison-card {
+            border-radius: 16px;
+            padding: 30px;
+            border: 4px solid;
+        }
+
+        .comparison-card.bad {
+            background: linear-gradient(135deg, #fecaca, #fbbebe);
+            border-color: #f87171;
+        }
+
+        .comparison-card.good {
+            background: linear-gradient(135deg, #a7f3d0, #6ee7b7);
+            border-color: #10b981;
+        }
+
+        .comparison-card h4 {
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        .comparison-card.bad h4 {
+            color: #b91c1c;
+        }
+
+        .comparison-card.good h4 {
+            color: #065f46;
+        }
+
+        .comparison-card p {
+            font-weight: 600;
+            line-height: 1.8;
+        }
+
+        .comparison-card.bad p {
+            color: #b91c1c;
+        }
+
+        .comparison-card.good p {
+            color: #065f46;
+        }
+
+        .comparison-card ul li {
+            font-weight: 600;
+        }
+
+        .comparison-card.bad ul li {
+            color: #b91c1c;
+        }
+
+        .comparison-card.good ul li {
+            color: #065f46;
+        }
+
+        h2 {
+            color: #1e293b;
+            font-weight: 800;
+        }
+
+        @media (max-width: 768px) {
+            .warning-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .content {
+                padding: 30px;
+            }
+
+            header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏗️ Guide Architecture Vue.js</h1>
+            <p>DRY · KISS · DDD · Atomic Design · Single Responsibility</p>
+        </header>
+
+        <div class="warning-banner">
+            <h2>🚨 Règle d'or à ne JAMAIS oublier</h2>
+            <div class="warning-content">
+                <div class="anti-pattern-box">
+                    <h3>❌ N'ENVELOPPEZ PAS Vuetify</h3>
+                    <p style="margin: 15px 0;">Ne créez JAMAIS de wrapper pour des composants Vuetify sans raison valable.</p>
+                    <p><strong>Mauvais exemple :</strong></p>
+                    <code>&lt;MyButton /&gt;</code><br>
+                    <code>&lt;MyCard /&gt;</code><br>
+                    <code>&lt;MyInput /&gt;</code>
+                </div>
+                <div class="anti-pattern-box">
+                    <h3>✅ UTILISEZ Vuetify directement</h3>
+                    <p style="margin: 15px 0;">Utilisez VBtn, VCard, VTextField directement. Passez des composables et handlers en props si nécessaire.</p>
+                    <p><strong>Bon exemple :</strong></p>
+                    <code>&lt;VBtn @click="handleClick"&gt;</code><br>
+                    <code>&lt;VCard&gt;</code><br>
+                    <code>&lt;VTextField v-model="value"&gt;</code>
+                </div>
+            </div>
+        </div>
+
+        <div class="principles-banner">
+            <h2>🎯 Les 5 principes fondateurs</h2>
+            <div class="principles-grid">
+                <div class="principle-badge">
+                    <h3>DRY</h3>
+                    <p>Don't Repeat Yourself</p>
+                    <p style="margin-top: 12px; font-size: 0.85em;">Chaque concept une seule fois</p>
+                </div>
+                <div class="principle-badge">
+                    <h3>KISS</h3>
+                    <p>Keep It Simple, Stupid</p>
+                    <p style="margin-top: 12px; font-size: 0.85em;">La simplicité avant tout</p>
+                </div>
+                <div class="principle-badge">
+                    <h3>DDD</h3>
+                    <p>Domain-Driven Design</p>
+                    <p style="margin-top: 12px; font-size: 0.85em;">Organisation par domaine</p>
+                </div>
+                <div class="principle-badge">
+                    <h3>Atomic Design</h3>
+                    <p>Composants hiérarchisés</p>
+                    <p style="margin-top: 12px; font-size: 0.85em;">Atoms → Organisms → Pages</p>
+                </div>
+                <div class="principle-badge">
+                    <h3>SRP</h3>
+                    <p>Single Responsibility</p>
+                    <p style="margin-top: 12px; font-size: 0.85em;">Un fichier = une responsabilité</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('vuetify')">🚨 Vuetify First</button>
+            <button class="tab" onclick="showTab('decision')">🌳 Arbre de décision</button>
+            <button class="tab" onclick="showTab('principles')">🎯 Principes</button>
+        </div>
+
+        <div class="content">
+            <div id="vuetify" class="tab-content active">
+                <h2 style="margin-bottom: 30px; font-size: 2.2em;">🚨 VUETIFY FIRST - Ne créez PAS de wrappers inutiles</h2>
+
+                <div class="anti-patterns">
+                    <h3 style="font-size: 1.6em;">❌ L'erreur la plus commune : Wrapper tous les composants</h3>
+                    <p style="font-size: 1.1em; margin: 20px 0; line-height: 1.8;">Beaucoup de développeurs ont le réflexe de créer un wrapper pour "personnaliser" ou "contrôler" les composants. <strong>C'est une mauvaise pratique qui viole KISS et crée de la complexité inutile.</strong></p>
+                </div>
+
+                <div class="comparison-grid">
+                    <div class="comparison-card bad">
+                        <h4>❌ MAUVAIS - Créer des wrappers</h4>
+                        <div class="example" data-label="components/MyButton.vue">
+<pre>&lt;!-- ❌ NE FAITES PAS ÇA --&gt;
+&lt;script setup&gt;
+defineProps({
+  label: String,
+  color: String,
+  onClick: Function
+})
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;VBtn 
+    :color="color"
+    @click="onClick"
+  &gt;
+    {{ label }}
+  &lt;/VBtn&gt;
+&lt;/template&gt;</pre>
+                        </div>
+
+                        <p style="margin-top: 20px;"><strong>Pourquoi c'est mauvais :</strong></p>
+                        <ul>
+                            <li>❌ Viole KISS (complexité inutile)</li>
+                            <li>❌ Duplication de l'API Vuetify</li>
+                            <li>❌ Maintenance difficile</li>
+                            <li>❌ Perte des features Vuetify</li>
+                        </ul>
+                    </div>
+
+                    <div class="comparison-card good">
+                        <h4>✅ BON - Utiliser Vuetify directement</h4>
+                        <div class="example" data-label="pages/ProductsPage.vue">
+<pre>&lt;!-- ✅ FAITES ÇA --&gt;
+&lt;script setup&gt;
+import { useProducts } from '../useProducts'
+
+const { addProduct, isLoading } = useProducts()
+
+const handleAdd = () => {
+  addProduct()
+}
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;VBtn 
+    color="primary"
+    :loading="isLoading"
+    @click="handleAdd"
+  &gt;
+    Ajouter un produit
+  &lt;/VBtn&gt;
+&lt;/template&gt;</pre>
+                        </div>
+
+                        <p style="margin-top: 20px;"><strong>Pourquoi c'est bien :</strong></p>
+                        <ul>
+                            <li>✅ Respecte KISS (simple et direct)</li>
+                            <li>✅ Accès complet à l'API Vuetify</li>
+                            <li>✅ Pas de maintenance supplémentaire</li>
+                            <li>✅ Composable pour la logique</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="best-practices">
+                    <h3 style="font-size: 1.6em;">✅ Règles à suivre TOUJOURS</h3>
+                    
+                    <ul style="font-size: 1.05em;">
+                        <li><strong>Utilisez Vuetify directement</strong><br>
+                        VBtn, VCard, VTextField, VSelect... tous doivent être utilisés sans wrapper</li>
+                        
+                        <li><strong>Logique dans composables</strong><br>
+                        Toute logique métier va dans un composable (<code>useProducts()</code>, <code>useAuth()</code>)</li>
+                        
+                        <li><strong>Handlers dans la page</strong><br>
+                        Les gestionnaires d'événements sont définis dans la page et passés aux composants</li>
+                        
+                        <li><strong>Créez un Organism seulement si</strong><br>
+                        C'est une section complète réutilisée 3+ fois (ProductCard, UserProfile...)</li>
+                        
+                        <li><strong>Ne créez JAMAIS</strong><br>
+                        MyButton, MyInput, MyCard, etc. → Utilisez V* directement</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="decision" class="tab-content">
+                <h2 style="margin-bottom: 30px; font-size: 2.2em;">🌳 Arbre de décision</h2>
+                
+                <div class="flowchart">
+                    <div class="flow-step">
+                        <h3>🤔 Je dois implémenter une fonctionnalité</h3>
+                        <p><strong>Appliquez DRY :</strong> Ce code existe-t-il déjà quelque part ?</p>
+                        <p><strong>Appliquez KISS :</strong> Quelle est la solution la plus simple ?</p>
+                        <p><strong>Appliquez SRP :</strong> Quelle est la responsabilité unique ?</p>
+                    </div>
+
+                    <div class="flow-arrow">↓</div>
+
+                    <div class="flow-step decision">
+                        <h3>❓ C'est un atome UI de base ?</h3>
+                        <p>Bouton, input, icon, chip...</p>
+                    </div>
+
+                    <div class="flow-arrow">↓ OUI</div>
+
+                    <div class="flow-step result">
+                        <h3>⚛️ VUETIFY directement</h3>
+                        <p><strong>KISS :</strong> Utilisez directement Vuetify</p>
+                        <ul>
+                            <li>✅ <code>&lt;VBtn&gt;</code></li>
+                            <li>✅ <code>&lt;VTextField&gt;</code></li>
+                            <li>✅ <code>&lt;VCard&gt;</code></li>
+                            <li>❌ Ne PAS wrapper sans raison valable</li>
+                        </ul>
+                    </div>
+
+                    <div class="flow-arrow">↓ NON</div>
+
+                    <div class="flow-step decision">
+                        <h3>❓ C'est une section complète réutilisée 3+ fois ?</h3>
+                        <p>Groupe de composants qui revient souvent</p>
+                    </div>
+
+                    <div class="flow-arrow">↓ OUI</div>
+
+                    <div class="flow-step result">
+                        <h3>🦠 ORGANISM Component</h3>
+                        <p><strong>Atomic Design :</strong> Section autonome</p>
+                        <ul>
+                            <li>ProductCard.vue</li>
+                            <li>UserProfile.vue</li>
+                            <li>FilterPanel.vue</li>
+                        </ul>
+                        <p style="margin-top: 10px;"><strong>Peut contenir :</strong> Logique UI locale uniquement</p>
+                    </div>
+
+                    <div class="flow-arrow">↓ NON</div>
+
+                    <div class="flow-step decision">
+                        <h3>❓ C'est une fonction pure sans état ?</h3>
+                        <p>Input → Transformation → Output</p>
+                    </div>
+
+                    <div class="flow-arrow">↓ OUI</div>
+
+                    <div class="flow-step result">
+                        <h3>🔧 UTILS</h3>
+                        <p><strong>SRP :</strong> Une responsabilité = un fichier</p>
+                        <ul>
+                            <li><code>formatters.js</code> → Formatage uniquement</li>
+                            <li><code>validators.js</code> → Validation uniquement</li>
+                            <li><code>calculators.js</code> → Calculs uniquement</li>
+                        </ul>
+                        <p style="margin-top: 10px;"><strong>DRY :</strong> Réutilisé partout, défini une fois</p>
+                    </div>
+
+                    <div class="flow-arrow">↓ NON</div>
+
+                    <div class="flow-step decision">
+                        <h3>❓ État partagé entre 2+ domaines ?</h3>
+                        <p>Données nécessaires globalement</p>
+                    </div>
+
+                    <div class="flow-arrow">↓ OUI</div>
+
+                    <div class="flow-step result">
+                        <h3>🏪 STORE (Pinia)</h3>
+                        <p><strong>DDD :</strong> Un store par domaine métier</p>
+                        <ul>
+                            <li><code>userStore.js</code> → État utilisateur</li>
+                            <li><code>cartStore.js</code> → État panier</li>
+                            <li><code>appStore.js</code> → Config globale</li>
+                        </ul>
+                        <p style="margin-top: 10px;"><strong>SRP :</strong> Gestion d'état d'un seul domaine</p>
+                    </div>
+
+                    <div class="flow-arrow">↓ NON</div>
+
+                    <div class="flow-step decision">
+                        <h3>❓ Logique métier réutilisable avec état ?</h3>
+                        <p>Logique + réactivité + réutilisable</p>
+                    </div>
+
+                    <div class="flow-arrow">↓ OUI</div>
+
+                    <div class="flow-step result">
+                        <h3>🎣 COMPOSABLE</h3>
+                        <p><strong>DRY + SRP :</strong> Une logique métier = un composable</p>
+                        <ul>
+                            <li><code>usePagination.js</code> → Pagination uniquement</li>
+                            <li><code>useFilters.js</code> → Filtrage uniquement</li>
+                            <li><code>useForm.js</code> → Gestion formulaire uniquement</li>
+                        </ul>
+                        <p style="margin-top: 10px;"><strong>KISS :</strong> Composables petits et focalisés</p>
+                    </div>
+
+                    <div class="flow-arrow">↓ NON</div>
+
+                    <div class="flow-step result">
+                        <h3>🌐 SERVICE ou SDK</h3>
+                        <p><strong>SERVICE</strong> : Votre propre API</p>
+                        <ul>
+                            <li><code>productService.js</code> → API /products</li>
+                            <li><code>orderService.js</code> → API /orders</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>SDK</strong> : API externe</p>
+                        <ul>
+                            <li><code>azureAuthSdk.js</code> → Azure AD</li>
+                            <li><code>stripeSdk.js</code> → Stripe</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="principles" class="tab-content">
+                <h2 style="margin-bottom: 30px; font-size: 2.2em;">Les 5 principes fondateurs</h2>
+
+                <div class="principle-box">
+                    <h3>1. DRY - Don't Repeat Yourself</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;"><strong>Règle d'or :</strong> Chaque concept doit avoir une seule source de vérité dans le code.</p>
+                    
+                    <div class="best-practices">
+                        <h4>✅ Application du DRY</h4>
+                        <ul>
+                            <li><strong>Logique dupliquée → Composable</strong><br>
+                            Si vous copiez-collez de la logique entre 2 pages → créez un composable</li>
+                            <li><strong>Fonctions utilitaires → Utils</strong><br>
+                            <code>formatPrice()</code> utilisé partout → un seul fichier <code>utils/formatters.js</code></li>
+                            <li><strong>État partagé → Store</strong><br>
+                            Données utilisateur dans 5 pages → un store <code>userStore.js</code></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="principle-box">
+                    <h3>2. KISS - Keep It Simple, Stupid</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;"><strong>Règle d'or :</strong> La solution la plus simple est souvent la meilleure.</p>
+                    
+                    <div class="best-practices">
+                        <h4>✅ Application du KISS</h4>
+                        <ul>
+                            <li><strong>Composant simple → Vuetify directement</strong><br>
+                            Besoin d'un bouton ? → <code>&lt;VBtn&gt;</code> sans wrapper</li>
+                            <li><strong>Fonction pure → Utils simple</strong><br>
+                            Pas de classe complexe si une fonction suffit</li>
+                            <li><strong>État local → ref() simple</strong><br>
+                            Pas de store si une seule page utilise les données</li>
+                        </ul>
+                    </div>
+
+                    <div class="anti-patterns">
+                        <h4>❌ Violation du KISS</h4>
+                        <ul>
+                            <li>❌ Créer un wrapper custom pour chaque composant Vuetify</li>
+                            <li>❌ Système de plugins complexe pour 2 lignes de code</li>
+                            <li>❌ Abstractions prématurées "au cas où"</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="principle-box">
+                    <h3>3. DDD - Domain-Driven Design</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;"><strong>Règle d'or :</strong> Organisez le code par domaine métier, pas par type technique.</p>
+                    
+                    <div class="file-structure">
+<div class="folder">📁 src/domains/</div>
+<div class="folder">&nbsp;&nbsp;📁 products/</div>
+<div class="file">&nbsp;&nbsp;&nbsp;&nbsp;📄 ProductsPage.vue</div>
+<div class="file">&nbsp;&nbsp;&nbsp;&nbsp;📄 useProducts.js</div>
+<div class="file">&nbsp;&nbsp;&nbsp;&nbsp;📄 productService.js</div>
+<div class="folder">&nbsp;&nbsp;📁 orders/</div>
+<div class="file">&nbsp;&nbsp;&nbsp;&nbsp;📄 OrdersPage.vue</div>
+<div class="file">&nbsp;&nbsp;&nbsp;&nbsp;📄 useOrders.js</div>
+<div class="folder">&nbsp;&nbsp;📁 auth/</div>
+<div class="file">&nbsp;&nbsp;&nbsp;&nbsp;📄 LoginPage.vue</div>
+<div class="file">&nbsp;&nbsp;&nbsp;&nbsp;📄 useAuth.js</div>
+                    </div>
+                </div>
+
+                <div class="principle-box">
+                    <h3>4. Atomic Design</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;"><strong>Règle d'or :</strong> Construire l'UI du plus petit au plus grand.</p>
+                    <ul style="font-size: 1.05em;">
+                        <li>⚛️ <strong>Atoms</strong> = Vuetify (VBtn, VCard...) - NE PAS WRAPPER</li>
+                        <li>🦠 <strong>Organisms</strong> = Sections complètes (ProductCard.vue)</li>
+                        <li>📄 <strong>Pages</strong> = Orchestration finale</li>
+                    </ul>
+                </div>
+
+                <div class="principle-box">
+                    <h3>5. Single Responsibility Principle</h3>
+                    <p style="margin-bottom: 15px; font-size: 1.1em;"><strong>Règle d'or :</strong> Un fichier = une seule raison de changer.</p>
+                    <ul style="font-size: 1.05em;">
+                        <li><code>formatters.js</code> → Formatage uniquement</li>
+                        <li><code>validators.js</code> → Validation uniquement</li>
+                        <li><code>productService.js</code> → API produits uniquement</li>
+                        <li><code>useProducts.js</code> → Logique produits uniquement</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active')
+            })
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active')
+            })
+            
+            document.getElementById(tabName).classList.add('active')
+            event.target.classList.add('active')
+        }
+    </script>
+</body>
+</html>
